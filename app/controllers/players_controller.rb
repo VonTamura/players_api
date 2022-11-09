@@ -5,23 +5,22 @@ class PlayersController < ApplicationController
   def index
     @players = Player.all
 
-    render json: @players
+    render json: @players,status: :ok
   end
 
   # GET /players/1
   def show
-    render json: @player
+    render json: @player, status: :ok
   end
 
   # POST /players
   def create
-    @player = Player.new(player_params)
-
-    if @player.save
-      render json: @player, status: :created, location: @player
-    else
-      render json: @player.errors, status: :unprocessable_entity
-    end
+    @player = Player.create!(player_params["players"])
+    #if @player.save
+      render json: @player, status: :created
+    #else
+      #render json: @player.errors, status: :unprocessable_entity
+    #end
   end
 
   # PATCH/PUT /players/1
@@ -43,9 +42,9 @@ class PlayersController < ApplicationController
     def set_player
       @player = Player.find(params[:id])
     end
-
-    # Only allow a list of trusted parameters through.
+  
     def player_params
-      params.require(:player).permit(:name, :level, :goals, :salary, :bonus, :total_salary, :team)
+      translated_params = TranslationRequest.new(params).translate_keys
+      translated_params.permit( players: [ :name, :level, :goals, :salary, :bonus, :total_salary, :team ] )
     end
 end
