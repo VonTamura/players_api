@@ -1,11 +1,19 @@
 class PlayersController < ApplicationController
   before_action :set_player, only: %i[ show update destroy ]
 
+  rescue_from Exception do |e|
+    render json: {error: e.message}, status: :internal_server_error
+  end
+
+  rescue_from ActiveRecord::RecordInvalid do |e|
+    render json: {error: e.message}, status: :unprocessable_entity
+  end
+
   # GET /players
   def index
     @players = Player.all
 
-    render json: @players,status: :ok
+    render json: @players, status: :ok
   end
 
   # GET /players/1
@@ -15,21 +23,15 @@ class PlayersController < ApplicationController
 
   # POST /players
   def create
-    @player = Player.create!(player_params["players"])
-    #if @player.save
-      render json: @player, status: :created
-    #else
-      #render json: @player.errors, status: :unprocessable_entity
-    #end
+    @player = Player.create!(player_params['players'])
+    render json: @player, status: :created
   end
 
-  # PATCH/PUT /players/1
+  # PUT /players/1
   def update
-    if @player.update(player_params)
-      render json: @player
-    else
-      render json: @player.errors, status: :unprocessable_entity
-    end
+    @player = Player.find(translated_params['players'].first['id'])
+    @player.update!(update_params['players'].first)
+    render json: @player, status: :ok
   end
 
   # DELETE /players/1
@@ -38,13 +40,31 @@ class PlayersController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_player
-      @player = Player.find(params[:id])
-    end
-  
-    def player_params
-      translated_params = TranslationRequest.new(params).translate_keys
-      translated_params.permit( players: [ :name, :level, :goals, :salary, :bonus, :total_salary, :team ] )
-    end
+
+  def set_player
+    @player = Player.find(params[:id])
+  end
+
+  def player_params
+    translated_params.permit(players: [:name,
+                                       :level,
+                                       :goals,
+                                       :salary,
+                                       :bonus,
+                                       :total_salary,
+                                       :team])
+  end
+
+  def update_params
+    translated_params.permit(players: [:name,
+                                       :level,
+                                       :goals,
+                                       :salary,
+                                       :bonus,
+                                       :team])
+  end
+
+  def translated_params
+    TranslationRequest.new(params).translate_keys
+  end
 end
