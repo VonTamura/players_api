@@ -24,7 +24,7 @@ class PlayersController < ApplicationController
   # POST /players
   def create
     @player = Player.create!(player_params['players'])
-    render json: @player, status: :created
+    render json: @player, root: 'jugadores', status: :created
   end
 
   # PUT /players/1
@@ -67,4 +67,5 @@ class PlayersController < ApplicationController
   def translated_params
     TranslationRequest.new(params).translate_keys
   end
+
 end

@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :player do
-    name { Faker::Name }
+    name { Faker::Name.name }
     level { ['A', 'B', 'C', 'Cuauh'].sample }
     goals { rand(1..30) }
     salary { rand(50000.00..100000.00).round(2) }

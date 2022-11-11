@@ -17,7 +17,7 @@ RSpec.describe 'Players', type: :request do
     it 'should return all players' do
       get '/players'
       payload = JSON.parse(response.body)
-      expect(payload.size).to eq(player.size)
+      expect(payload["players"].size).to eq(player.size)
       expect(response).to have_http_status(200)
     end
   end
@@ -29,7 +29,7 @@ RSpec.describe 'Players', type: :request do
       get "/players/#{player.id}"
       payload = JSON.parse(response.body)
       expect(payload).to_not be_empty
-      expect(payload['id']).to eq(player.id)
+      expect(payload['player']['nombre']).to eq(player.name)
       expect(response).to have_http_status(200)
     end
   end
@@ -62,8 +62,8 @@ RSpec.describe 'Players', type: :request do
       post '/players', params: req_payload
       payload = JSON.parse(response.body)
 
-      expect(payload.last).to_not be_empty
-      expect(payload.last['id']).to_not be_nil
+      expect(payload['jugadores'].last).to_not be_empty
+      expect(payload['jugadores'].last['nombre']).to_not be_nil
       expect(response).to have_http_status(:created)
     end
 
@@ -120,7 +120,7 @@ RSpec.describe 'Players', type: :request do
       payload = JSON.parse(response.body)
 
       expect(payload).to_not be_empty
-      expect(payload['id']).to eq(player.id)
+      expect(payload['player']['id']).to eq(player.id)
       expect(response).to have_http_status(:ok)
     end
 
